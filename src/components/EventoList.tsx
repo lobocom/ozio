@@ -4,7 +4,8 @@ import EventoCard from './EventoCard';
 import { format, isToday, isTomorrow, parseISO } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { motion } from 'framer-motion';
-import { SearchX } from 'lucide-react';
+import { SearchX, MapPin } from 'lucide-react';
+import { useUser } from '../contexts/UserContext';
 
 interface EventoListProps {
   eventos: Evento[];
@@ -12,7 +13,32 @@ interface EventoListProps {
 }
 
 const EventoList: React.FC<EventoListProps> = ({ eventos, onEventClick }) => {
-    // If there are no events, show the empty state message
+  const { coordinates, error: locationError } = useUser();
+
+  // If location is needed but not available, show the permission request
+  if (!coordinates && locationError) {
+    return (
+      <div className="flex-1 flex flex-col items-center justify-center px-4 py-8">
+        <div className="bg-white rounded-full p-4 mb-4">
+          <MapPin size={48} className="text-gray-400" />
+        </div>
+        <h2 className="text-xl font-semibold text-gray-800 mb-2 text-center">
+          Necesitamos tu ubicación
+        </h2>
+        <p className="text-gray-600 text-center max-w-sm mb-6">
+          Para mostrarte eventos cercanos, necesitamos acceder a tu ubicación. También puedes seleccionar una ciudad específica en el menú superior.
+        </p>
+        <button
+          onClick={() => window.location.reload()}
+          className="bg-indigo-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-indigo-700 transition-colors"
+        >
+          Permitir ubicación
+        </button>
+      </div>
+    );
+  }
+
+  // If there are no events, show the empty state message
   if (eventos.length === 0) {
     return (
       <div className="flex-1 flex flex-col items-center justify-center px-4 py-8">
