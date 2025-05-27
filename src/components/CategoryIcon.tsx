@@ -7,7 +7,7 @@ import clsx from 'clsx';
 interface CategoryIconProps {
   category: Category;
   isSelected: boolean;
-  onClick: (categoryId: string) => void;
+  onClick: (categoryId: number) => void;
 }
 
 const CategoryIcon: React.FC<CategoryIconProps> = ({ category, isSelected, onClick }) => {
@@ -27,7 +27,7 @@ const CategoryIcon: React.FC<CategoryIconProps> = ({ category, isSelected, onCli
         style={{ 
           backgroundColor: isSelected ? category.color : '#d1d5db', 
           color: isSelected ? 'white' : '#4b5563',
-          ringColor: isSelected ? category.color : 'transparent'
+          //ringColor: isSelected ? category.color : 'transparent'
         }}
       >
         <Icon size={24} />
@@ -38,7 +38,7 @@ const CategoryIcon: React.FC<CategoryIconProps> = ({ category, isSelected, onCli
           isSelected ? "text-gray-900" : "text-gray-600"
         )}
       >
-        {category.name}
+        {category.tituloEs}
       </span>
     </motion.div>
   );

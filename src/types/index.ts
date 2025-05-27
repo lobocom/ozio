@@ -5,6 +5,8 @@ export interface Category {
   descripcionEs: string;
   descripcionEn: string;
   activo: boolean;
+  color: string;
+  icon: string;
 }
 
 export interface Country {
