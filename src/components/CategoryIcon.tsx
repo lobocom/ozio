@@ -21,7 +21,7 @@ const CategoryIcon: React.FC<CategoryIconProps> = ({ category, isSelected, onCli
     >
       <motion.div 
         className={clsx(
-          "w-16 h-16 rounded-full flex items-center justify-center mb-2",
+          "w-12 h-12 rounded-full flex items-center justify-center mb-2",
           isSelected ? "ring-2 ring-offset-2" : "opacity-80"
         )}
         style={{ 
