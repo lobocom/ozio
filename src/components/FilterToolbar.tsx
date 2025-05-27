@@ -1,6 +1,7 @@
 import React from 'react';
 import { locations } from '../data/locations';
 import { MapPin, Ruler } from 'lucide-react';
+import { useUser } from '../contexts/UserContext';
 
 interface FilterToolbarProps {
   selectedLocation: string;
@@ -15,6 +16,10 @@ const FilterToolbar: React.FC<FilterToolbarProps> = ({
   onLocationChange,
   onDistanceChange
 }) => {
+
+  const { coordinates, error } = useUser();
+  const isMyLocationDisabled = !coordinates && selectedLocation !== 'my-location';
+
   return (
     <div className="bg-white p-3 shadow-sm flex justify-between items-center">
       <div className="flex items-center gap-2">
@@ -25,11 +30,17 @@ const FilterToolbar: React.FC<FilterToolbarProps> = ({
           className="p-2 text-sm border border-gray-300 rounded-md bg-gray-50 text-gray-700"
         >
           {locations.map((location) => (
-            <option key={location.id} value={location.id}>
-              {location.name}
+            <option 
+              key={location.id} 
+              value={location.id}
+              disabled={location.id === '0' && isMyLocationDisabled}
+          >
+              {location.name} {location.id === '0' && error ? '(No disponible)' : ''}
             </option>
           ))}
         </select>
+<> lat:{coordinates?.latitude}  lon:{coordinates?.longitude} </>
+
       </div>
       
       <div className="flex items-center gap-2">

@@ -1,78 +1,74 @@
-import React, { useState, useEffect } from "react";
-import { Event } from "./types";
+import React, { useState, useEffect, useRef } from "react";
+import { Evento } from "./types";
 import { locations } from "./data/locations";
-import { fetchEvents } from "./services/api";
+import { fetchEventos } from "./services/api";
 import { AnimatePresence } from "framer-motion";
 import { useLocalStorage } from "./hooks/useLocalStorage";
+import { useUser } from './contexts/UserContext';
+import { Toast } from 'primereact/toast';
 
 // Componentes
 import CategoryScroller from "./components/CategoryScroller";
 import FilterToolbar from "./components/FilterToolbar";
-import EventList from "./components/EventList";
+import EventoList from "./components/EventoList";
 import BottomTabs from "./components/BottomTabs";
-import EventDetail from "./components/EventDetail";
+import EventoDetail from "./components/EventoDetail";
 
 function App() {
-  // State
-  const [events, setEvents] = useState<Event[]>([]);
-  const [filteredEvents, setFilteredEvents] = useState<Event[]>([]);
-  const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(
-    null
-  );
+  const { coordinates, loading: locationLoading } = useUser();
+  const toast = useRef<Toast>(null);
+
+  const [eventos, setEventos] = useState<Evento[]>([]);
+  const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null);
   const [selectedLocation, setSelectedLocation] = useLocalStorage(
     "selectedLocation",
     locations[0].id
   );
   const [maxDistance, setMaxDistance] = useLocalStorage("maxDistance", 25);
-  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+  const [selectedEvent, setSelectedEvent] = useState<Evento | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Fetch events on component mount
+  // Fetch eventos on component mount
   useEffect(() => {
-    const loadEvents = async () => {
+    const loadEventos = async () => {
       try {
         setLoading(true);
-        const data = await fetchEvents({
+        
+        // Get coordinates based on selected location
+        let locationCoords;
+        if (selectedLocation === '0') {
+          locationCoords = coordinates;
+        } else {
+          const location = locations.find(loc => loc.id === selectedLocation);
+          locationCoords = location?.coordinates;
+        }
+
+        const data = await fetchEventos({
           categoria: selectedCategoryId ?? undefined,
+          coordinates: locationCoords ?? undefined,
+          distancia: maxDistance
         });
-        setEvents(data);
-        setFilteredEvents(data);
+        setEventos(data);
         setError(null);
       } catch (err) {
         setError("Error al cargar los eventos");
-        console.error("Error loading events:", err);
+        toast.current?.show({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Error al cargar los eventos',
+          life: 3000
+        });
+        console.error("Error loading eventos:", err);
       } finally {
         setLoading(false);
       }
     };
 
-    loadEvents();
-  }, [selectedCategoryId]);
-
-  // Filter events when filters change
-  useEffect(() => {
-    let filtered = [...events];
-
-    // Filter by location
-    if (selectedLocation !== "8") {
-      // '8' is 'Todas' (All locations)
-      const locationName = locations.find(
-        (loc) => loc.id === selectedLocation
-      )?.name;
-      if (locationName) {
-        filtered = filtered.filter((event) => event.localidad === locationName);
-      }
+    if (!locationLoading) {
+      loadEventos();
     }
-
-    // Sort by date
-    filtered.sort(
-      (a, b) =>
-        new Date(a.fechaInicio).getTime() - new Date(b.fechaInicio).getTime()
-    );
-
-    setFilteredEvents(filtered);
-  }, [selectedLocation, maxDistance, events]);
+  }, [selectedCategoryId, selectedLocation, coordinates, locationLoading, maxDistance]);
 
   // Handle category selection
   const handleCategorySelect = (categoryId: number) => {
@@ -81,23 +77,33 @@ function App() {
     );
   };
 
-  // Handle event click
-  const handleEventClick = (event: Event) => {
-    setSelectedEvent(event);
+  // Handle evento click
+  const handleEventClick = (evento: Evento) => {
+    setSelectedEvent(evento);
   };
 
   // Handle notify button click
   const handleNotifyClick = () => {
-    alert("Notificación configurada!");
+    toast.current?.show({
+      severity: 'success',
+      summary: 'Notificación',
+      detail: 'Notificación configurada correctamente',
+      life: 3000
+    });
   };
 
   // Handle publish button click
   const handlePublishClick = () => {
-    alert("Formulario para publicar un evento");
+    toast.current?.show({
+      severity: 'info',
+      summary: 'Publicar evento',
+      detail: 'Próximamente podrás publicar tus eventos',
+      life: 3000
+    });
   };
 
   // Render loading state
-  if (loading) {
+  if (loading || locationLoading) {
     return (
       <div className="min-h-screen bg-gray-100 flex items-center justify-center">
         <p className="text-gray-600">Cargando eventos...</p>
@@ -116,6 +122,8 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col pb-16">
+      <Toast ref={toast} />
+      
       <div className="fixed top-0 left-0 right-0 z-50">
         <div className="bg-white shadow-sm">
           <CategoryScroller
@@ -133,7 +141,7 @@ function App() {
       </div>
 
       <div className="pt-[190px] pb-20">
-        <EventList events={filteredEvents} onEventClick={handleEventClick} />
+        <EventoList eventos={eventos} onEventClick={handleEventClick} />
       </div>
       
       <BottomTabs
@@ -141,12 +149,13 @@ function App() {
         onPublishClick={handlePublishClick}
       />
 
-      {/* Event Detail Modal */}
+      {/* Evento Detail Modal */}
       <AnimatePresence>
         {selectedEvent && (
-          <EventDetail
-            event={selectedEvent}
+          <EventoDetail
+            evento={selectedEvent}
             onClose={() => setSelectedEvent(null)}
+            toast={toast}
           />
         )}
       </AnimatePresence>

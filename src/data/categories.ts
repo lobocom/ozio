@@ -10,7 +10,7 @@ export const categories: Category[] = [
     descripcionEn: '',
     activo: true,
     icon: 'Utensils',
-    color: '#8b5cf6'
+    color: '#d79c41'
   },
   {
     id: 2,
@@ -20,7 +20,7 @@ export const categories: Category[] = [
     descripcionEn: '',
     activo: true,
     icon: 'Beer',
-    color: '#ec4899'
+    color: '#7eb88a'
   },
   {
     id: 3,
@@ -30,7 +30,7 @@ export const categories: Category[] = [
     descripcionEn: '',
     activo: true,
     icon: 'Ticket',
-    color: '#f97316'
+    color: '#ebd57e'
   },
   {
     id: 4,
@@ -40,7 +40,7 @@ export const categories: Category[] = [
     descripcionEn: '',
     activo: true,
     icon: 'Music',
-    color: '#10b981'
+    color: '#c15d61'
   },
   {
     id: 5,
@@ -50,7 +50,7 @@ export const categories: Category[] = [
     descripcionEn: '',
     activo: true,
     icon: 'Palette',
-    color: '#3b82f6'
+    color: '#5b368b'
   },
   {
     id: 6,
@@ -60,7 +60,7 @@ export const categories: Category[] = [
     descripcionEn: '',
     activo: true,
     icon: 'Baby',
-    color: '#3b82f6'
+    color: '#76a7dc'
   },
   {
     id: 7,
@@ -70,7 +70,7 @@ export const categories: Category[] = [
     descripcionEn: '',
     activo: true,
     icon: 'PartyPopper',
-    color: '#3b82f6'
+    color: '#b69f74'
   },
 ];
 

@@ -61,7 +61,7 @@ export interface Tic {
   activo: boolean;
 }
 
-export interface Event {
+export interface Evento {
   id: number;
   tituloEs: string;
   tituloEn: string;
@@ -90,10 +90,15 @@ export interface Event {
 }
 
 export interface ApiResponse {
-  data: Event[];
+  data: Evento[];
 }
 
+export interface Coordinates {
+  latitude: number;
+  longitude: number;
+}
 export interface Location {
   id: string;
   name: string;
+  coordinates: Coordinates | null;
 }
