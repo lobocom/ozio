@@ -25,7 +25,7 @@ const EventCard: React.FC<EventCardProps> = ({ event, onClick }) => {
       <div className="p-4 flex-1">
         <div className="flex items-center mb-1">
           <span className="text-xs font-semibold text-indigo-600">
-            {event.categoriaPrincipal.tituloEs}
+            {event.categoriaPrincipal.tituloEs} /  {event.categoriaSecundaria?.tituloEs}
           </span>
           {event.gratuito && (
             <span className="ml-2 px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">

@@ -9,7 +9,7 @@ interface BottomTabsProps {
 
 const BottomTabs: React.FC<BottomTabsProps> = ({ onNotifyClick, onPublishClick }) => {
   return (
-    <div className="bg-white border-t border-gray-200 flex h-16 items-center">
+    <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex h-16 items-center z-50">
       <motion.button
         className="flex-1 flex flex-col items-center justify-center h-full"
         whileTap={{ scale: 0.95 }}
