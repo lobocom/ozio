@@ -28,7 +28,7 @@ function App() {
     "selectedLocation",
     locations[0].id
   );
-  const [maxDistance, setMaxDistance] = useLocalStorage("maxDistance", 25);
+  const [maxDistance, setMaxDistance] = useLocalStorage("maxDistance", 50);
   const [selectedEvent, setSelectedEvent] = useState<Evento | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
