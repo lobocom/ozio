@@ -24,8 +24,8 @@ export const categories: Category[] = [
   },
   {
     id: 3,
-    tituloEs: 'Cultura',
-    tituloEn: 'Culture',
+    tituloEs: 'Cultura y Educación',
+    tituloEn: 'Culture and Education',
     descripcionEs: '',
     descripcionEn: '',
     activo: true,
