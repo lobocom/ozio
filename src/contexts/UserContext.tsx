@@ -1,9 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { Coordinates } from '../types';
 
-interface Coordinates {
-  latitude: number;
-  longitude: number;
-}
 
 interface UserContextType {
   coordinates: Coordinates | null;
@@ -17,7 +14,7 @@ const UserContext = createContext<UserContextType | undefined>(undefined);
 export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [coordinates, setCoordinates] = useState<Coordinates | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [locationError, setLocationError] = useState<string | null>(null);
 
   useEffect(() => {
     if ('geolocation' in navigator) {
@@ -31,7 +28,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
         },
         (error) => {
           console.error('Error getting location:', error);
-          setError('No se pudo obtener tu ubicación. Por favor, verifica que has permitido el acceso a la ubicación en tu navegador.');
+          setLocationError('No se pudo obtener tu ubicación. Por favor, verifica que has permitido el acceso a la ubicación en tu navegador.');
           setLoading(false);
         },
         {
@@ -41,7 +38,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
       );
     } else {
-      setError('Tu navegador no soporta geolocalización');
+      setLocationError('Tu navegador no soporta geolocalización');
       setLoading(false);
     }
   }, []);
@@ -55,7 +52,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
       value={{ 
         coordinates, 
         loading, 
-        error, 
+        locationError, 
         updateCoordinates 
       }}
     >

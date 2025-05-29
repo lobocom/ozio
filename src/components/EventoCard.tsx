@@ -4,16 +4,29 @@ import { MapPin, MoveRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
+import { findCategoryById, getCategoryIcon } from '../data/categories';
 
 interface EventoCardProps {
   evento: Evento;
   onClick: (evento: Evento) => void;
+  selectedCategories: number[];
 }
 
-const EventoCard: React.FC<EventoCardProps> = ({ evento, onClick }) => {
+const EventoCard: React.FC<EventoCardProps> = ({ evento, onClick, selectedCategories }) => {
   const imageUrl = evento.resources[0]?.uris.optimized;
   const startDate = new Date(evento.fechaInicio);
   
+  // Determine which category to show based on the selected categories
+  const showSecondaryCategory = selectedCategories.includes(evento.categoriaSecundaria?.id ?? -1);
+  const showPrimaryCategory = selectedCategories.includes(evento.categoriaPrincipal.id);
+  
+  const categoryToShow = showSecondaryCategory ? 
+    evento.categoriaSecundaria : 
+    evento.categoriaPrincipal;
+  
+  const categoria = findCategoryById(categoryToShow?.id ?? evento.categoriaPrincipal.id);
+  const CategoryIcon = getCategoryIcon(categoria?.icon ?? 'Ticket');
+
   return (
     <motion.div 
       className="bg-white rounded-lg shadow-sm overflow-hidden mb-3 flex"
@@ -22,10 +35,19 @@ const EventoCard: React.FC<EventoCardProps> = ({ evento, onClick }) => {
       onClick={() => onClick(evento)}
       layout
     >
+
+         <div 
+        className="w-16 flex items-center justify-center"
+        style={{ backgroundColor: categoria?.color ?? '#000000' }}
+      >
+        <CategoryIcon size={24} className="text-white" />
+      </div>
+
       <div className="p-4 flex-1">
         <div className="flex items-center mb-1">
-          <span className="text-xs font-semibold text-indigo-600">
-            {evento.categoriaPrincipal.tituloEs} /  {evento.categoriaSecundaria?.tituloEs}
+          <span  className="text-xs font-semibold"
+            style={{ color: categoria?.color ?? '#000000' }}>
+            {categoryToShow?.tituloEs ?? evento.categoriaPrincipal.tituloEs}
           </span>
           {evento.gratuito && (
             <span className="ml-2 px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">

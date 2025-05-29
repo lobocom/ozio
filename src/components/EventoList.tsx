@@ -4,39 +4,16 @@ import EventoCard from './EventoCard';
 import { format, isToday, isTomorrow, parseISO } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { motion } from 'framer-motion';
-import { SearchX, MapPin } from 'lucide-react';
-import { useUser } from '../contexts/UserContext';
+import { SearchX } from 'lucide-react';
 
 interface EventoListProps {
   eventos: Evento[];
   onEventClick: (evento: Evento) => void;
+  selectedCategories: number[];
 }
 
-const EventoList: React.FC<EventoListProps> = ({ eventos, onEventClick }) => {
-  const { coordinates, error: locationError } = useUser();
+const EventoList: React.FC<EventoListProps> = ({ eventos, onEventClick, selectedCategories }) => {
 
-  // If location is needed but not available, show the permission request
-  if (!coordinates && locationError) {
-    return (
-      <div className="flex-1 flex flex-col items-center justify-center px-4 py-8">
-        <div className="bg-white rounded-full p-4 mb-4">
-          <MapPin size={48} className="text-gray-400" />
-        </div>
-        <h2 className="text-xl font-semibold text-gray-800 mb-2 text-center">
-          Necesitamos tu ubicación
-        </h2>
-        <p className="text-gray-600 text-center max-w-sm mb-6">
-          Para mostrarte eventos cercanos, necesitamos acceder a tu ubicación. También puedes seleccionar una ciudad específica en el menú superior.
-        </p>
-        <button
-          onClick={() => window.location.reload()}
-          className="bg-indigo-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-indigo-700 transition-colors"
-        >
-          Permitir ubicación
-        </button>
-      </div>
-    );
-  }
 
   // If there are no events, show the empty state message
   if (eventos.length === 0) {
@@ -123,6 +100,7 @@ const EventoList: React.FC<EventoListProps> = ({ eventos, onEventClick }) => {
                 key={evento.id} 
                 evento={evento} 
                 onClick={onEventClick}
+                selectedCategories={selectedCategories}
               />
             ))}
           </motion.div>

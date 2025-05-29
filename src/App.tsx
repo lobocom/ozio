@@ -6,6 +6,7 @@ import { AnimatePresence } from "framer-motion";
 import { useLocalStorage } from "./hooks/useLocalStorage";
 import { useUser } from './contexts/UserContext';
 import { Toast } from 'primereact/toast';
+import { categories } from './data/categories';
 
 // Componentes
 import CategoryScroller from "./components/CategoryScroller";
@@ -13,14 +14,17 @@ import FilterToolbar from "./components/FilterToolbar";
 import EventoList from "./components/EventoList";
 import BottomTabs from "./components/BottomTabs";
 import EventoDetail from "./components/EventoDetail";
+import LocationPermission from "./components/LocationPermission";
+
 
 function App() {
-  const { coordinates, loading: locationLoading } = useUser();
+  const { coordinates, loading: locationLoading, updateCoordinates } = useUser();
   const toast = useRef<Toast>(null);
 
   const [eventos, setEventos] = useState<Evento[]>([]);
-  const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null);
-  const [selectedLocation, setSelectedLocation] = useLocalStorage(
+  const [selectedCategories, setSelectedCategories] = useState<number[]>(
+    categories.map(category => category.id)
+  );  const [selectedLocation, setSelectedLocation] = useLocalStorage(
     "selectedLocation",
     locations[0].id
   );
@@ -37,19 +41,31 @@ function App() {
         
         // Get coordinates based on selected location
         let locationCoords;
+        console.log("Selected Location:", selectedLocation);
         if (selectedLocation === '0') {
           locationCoords = coordinates;
         } else {
           const location = locations.find(loc => loc.id === selectedLocation);
           locationCoords = location?.coordinates;
+          console.log("Location Coordinates:", locationCoords);
         }
 
+        // Fetch all events if no categories are selected
+        // Debemos ver si es mas eficiente filtrar en el backend
         const data = await fetchEventos({
-          categoria: selectedCategoryId ?? undefined,
           coordinates: locationCoords ?? undefined,
           distancia: maxDistance
         });
-        setEventos(data);
+
+        // Filter events by selected categories
+        const filteredData = selectedCategories.length > 0
+          ? data.filter(evento => 
+              selectedCategories.includes(evento.categoriaPrincipal.id) || 
+              (evento.categoriaSecundaria && selectedCategories.includes(evento.categoriaSecundaria.id))
+            )
+          : data;
+
+        setEventos(filteredData);
         setError(null);
       } catch (err) {
         setError("Error al cargar los eventos");
@@ -68,13 +84,21 @@ function App() {
     if (!locationLoading) {
       loadEventos();
     }
-  }, [selectedCategoryId, selectedLocation, coordinates, locationLoading, maxDistance]);
+  }, [selectedCategories, selectedLocation, coordinates, locationLoading, maxDistance]);
+
 
   // Handle category selection
   const handleCategorySelect = (categoryId: number) => {
-    setSelectedCategoryId((prevId) =>
-      prevId === categoryId ? null : categoryId
-    );
+    setSelectedCategories(prev => {
+      const index = prev.indexOf(categoryId);
+      if (index === -1) {
+        // Add category if not selected
+        return [...prev, categoryId];
+      } else {
+        // Remove category if already selected
+        return prev.filter(id => id !== categoryId);
+      }
+    });
   };
 
   // Handle evento click
@@ -102,6 +126,35 @@ function App() {
     });
   };
 
+    // Handle location request
+  const handleLocationRequest = () => {
+    if ('geolocation' in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          updateCoordinates({
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude
+          });
+          toast.current?.show({
+            severity: 'success',
+            summary: 'Ubicación',
+            detail: 'Ubicación actualizada correctamente',
+            life: 3000
+          });
+        },
+        (error) => {
+          console.error('Error getting location:', error);
+          toast.current?.show({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'No se pudo obtener tu ubicación',
+            life: 3000
+          });
+        }
+      );
+    }
+  };
+
   // Render loading state
   if (loading || locationLoading) {
     return (
@@ -112,13 +165,13 @@ function App() {
   }
 
   // Render error state
-  if (error) {
-    return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-        <p className="text-red-600">{error}</p>
-      </div>
-    );
-  }
+  // if (error) {
+  //   return (
+  //     <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+  //       <p className="text-red-600">{error}</p>
+  //     </div>
+  //   );
+  // }
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col pb-16">
@@ -127,7 +180,7 @@ function App() {
       <div className="fixed top-0 left-0 right-0 z-50">
         <div className="bg-white shadow-sm">
           <CategoryScroller
-            selectedCategoryId={selectedCategoryId}
+            selectedCategories={selectedCategories}
             onSelectCategory={handleCategorySelect}
           />
         </div>
@@ -140,10 +193,20 @@ function App() {
         />
       </div>
 
+
       <div className="pt-[190px] pb-20">
-        <EventoList eventos={eventos} onEventClick={handleEventClick} />
+        {selectedLocation === '0' && !coordinates ? (
+          <LocationPermission onRequestLocation={handleLocationRequest} />
+        ) : (
+          <EventoList 
+            eventos={eventos} 
+            onEventClick={handleEventClick} 
+            selectedCategories={selectedCategories}
+            />
+        )}
       </div>
-      
+
+    
       <BottomTabs
         onNotifyClick={handleNotifyClick}
         onPublishClick={handlePublishClick}

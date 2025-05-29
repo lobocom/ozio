@@ -5,12 +5,12 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 interface CategoryScrollerProps {
-  selectedCategoryId: number | null;
+  selectedCategories: number[];
   onSelectCategory: (categoryId: number) => void;
 }
 
 const CategoryScroller: React.FC<CategoryScrollerProps> = ({ 
-  selectedCategoryId, 
+  selectedCategories, 
   onSelectCategory 
 }) => {
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -46,7 +46,7 @@ const CategoryScroller: React.FC<CategoryScrollerProps> = ({
           <div key={category.id} className="snap-start">
             <CategoryIcon 
               category={category} 
-              isSelected={selectedCategoryId === null || selectedCategoryId === category.id}
+              isSelected={selectedCategories.includes(category.id)}
               onClick={onSelectCategory}
             />
           </div>

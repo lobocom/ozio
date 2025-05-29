@@ -17,8 +17,7 @@ const FilterToolbar: React.FC<FilterToolbarProps> = ({
   onDistanceChange
 }) => {
 
-  const { coordinates, error } = useUser();
-  const isMyLocationDisabled = !coordinates && selectedLocation !== 'my-location';
+  const { error } = useUser();
 
   return (
     <div className="bg-white p-3 shadow-sm flex justify-between items-center">
@@ -33,14 +32,11 @@ const FilterToolbar: React.FC<FilterToolbarProps> = ({
             <option 
               key={location.id} 
               value={location.id}
-              disabled={location.id === '0' && isMyLocationDisabled}
           >
               {location.name} {location.id === '0' && error ? '(No disponible)' : ''}
             </option>
           ))}
         </select>
-<> lat:{coordinates?.latitude}  lon:{coordinates?.longitude} </>
-
       </div>
       
       <div className="flex items-center gap-2">
