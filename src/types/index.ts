@@ -103,3 +103,13 @@ export interface Location {
   name: string;
   coordinates: Coordinates | null;
 }
+
+export interface EventoReminder {
+  eventoId: number;
+  reminderDate: string;
+  createdAt: string;
+}
+
+export interface RemindersStorage {
+  [eventoId: number]: EventoReminder;
+}
