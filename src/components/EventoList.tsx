@@ -1,7 +1,7 @@
 import React from 'react';
 import { Evento } from '../types';
 import EventoCard from './EventoCard';
-import { format, isToday, isTomorrow, parseISO } from 'date-fns';
+import { format, isToday, isTomorrow, parseISO, isAfter, startOfDay } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { motion } from 'framer-motion';
 import { SearchX } from 'lucide-react';
@@ -15,7 +15,7 @@ interface EventoListProps {
 const EventoList: React.FC<EventoListProps> = ({ eventos, onEventClick, selectedCategories }) => {
 
 
-  // If there are no events, show the empty state message
+  // Si no tenemos eventos, mostramos un mensaje
   if (eventos.length === 0) {
     return (
       <div className="flex-1 flex flex-col items-center justify-center px-4 py-8">
@@ -32,9 +32,12 @@ const EventoList: React.FC<EventoListProps> = ({ eventos, onEventClick, selected
     );
   }
 
-  // Group eventos by date
-  const groupedEventos: { [key: string]: Evento[] } = {};
-  
+
+  // Procesamos eventos para gesionar los eventos multi-dia
+  const processedEventos: Evento[] = [];
+  const today = startOfDay(new Date());
+
+
   eventos.forEach(evento => {
     try {
       // Ensure we have a valid date string
@@ -43,22 +46,55 @@ const EventoList: React.FC<EventoListProps> = ({ eventos, onEventClick, selected
         return;
       }
 
-      // Parse the date and validate it
-      const eventoDate = parseISO(evento.fechaInicio);
-      if (isNaN(eventoDate.getTime())) {
-        console.warn('Invalid date format:', evento.fechaInicio);
+      // Parse the dates and validate them
+      const startDate = parseISO(evento.fechaInicio);
+      const endDate = evento.fechaFin ? parseISO(evento.fechaFin) : startDate;
+
+      if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+        console.warn('Invalid date format:', evento.fechaInicio, evento.fechaFin);
         return;
       }
 
+       // Determine which date to show the event on
+      let displayDate = startDate;
+      
+      // If the start date is before today, show it today (for ongoing events)
+      if (isAfter(today, startOfDay(startDate))) {
+        displayDate = today;
+      }
+
+       // Create a modified evento with the display date
+      const modifiedEvento = {
+        ...evento,
+        fechaInicio: displayDate.toISOString(),
+        // Keep original end date for duration calculation
+        fechaFin: evento.fechaFin || evento.fechaInicio
+      };
+
+      processedEventos.push(modifiedEvento);
+    } catch (error) {
+      console.error('Error processing evento:', evento, error);
+    }
+  });
+
+  
+  // Group eventos by date
+  const groupedEventos: { [key: string]: Evento[] } = {};
+  
+   processedEventos.forEach(evento => {
+    try {
+      const eventoDate = parseISO(evento.fechaInicio);
       const dateKey = format(eventoDate, 'yyyy-MM-dd');
       if (!groupedEventos[dateKey]) {
         groupedEventos[dateKey] = [];
       }
       groupedEventos[dateKey].push(evento);
     } catch (error) {
-      console.error('Error processing evento date:', error, evento);
+      console.error('Error grouping evento by date:', error, evento);
     }
   });
+
+
   
   // Sort dates
   const sortedDates = Object.keys(groupedEventos).sort();
@@ -83,6 +119,8 @@ const EventoList: React.FC<EventoListProps> = ({ eventos, onEventClick, selected
     }
   };
   
+
+
   return (
     <motion.div className="px-4 py-2 flex-1 overflow-auto">
       {sortedDates.map(dateKey => (

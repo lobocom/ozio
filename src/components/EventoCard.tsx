@@ -2,7 +2,7 @@ import React from 'react';
 import { Evento } from '../types';
 import { MapPin, MoveRight } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { format } from 'date-fns';
+import { format, parseISO, isSameDay, differenceInDays } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { findCategoryById, getCategoryIcon } from '../data/categories';
 
@@ -14,8 +14,9 @@ interface EventoCardProps {
 
 const EventoCard: React.FC<EventoCardProps> = ({ evento, onClick, selectedCategories }) => {
   const imageUrl = evento.resources[0]?.uris.optimized;
-  const startDate = new Date(evento.fechaInicio);
-  
+  const startDate = parseISO(evento.fechaInicio);
+  const endDate = evento.fechaFin ? parseISO(evento.fechaFin) : startDate;
+    
   // Determine which category to show based on the selected categories
   const showSecondaryCategory = selectedCategories.includes(evento.categoriaSecundaria?.id ?? -1);
   const showPrimaryCategory = selectedCategories.includes(evento.categoriaPrincipal.id);
@@ -35,6 +36,19 @@ const EventoCard: React.FC<EventoCardProps> = ({ evento, onClick, selectedCatego
     return `estás a ${distance.toFixed(1)}km`;
   };
 
+  // Format event duration
+  const formatEventDuration = (): string => {
+    if (!evento.fechaFin || isSameDay(startDate, endDate)) {
+      return format(startDate, "d 'de' MMMM", { locale: es });
+    }
+    
+    const daysDifference = differenceInDays(endDate, startDate);
+    if (daysDifference === 1) {
+      return `${format(startDate, "d 'de' MMMM", { locale: es })} - mañana`;
+    } else {
+      return `${format(startDate, "d 'de' MMMM", { locale: es })} - ${format(endDate, "d 'de' MMMM", { locale: es })}`;
+    }
+  };
 
 
   return (
@@ -76,7 +90,7 @@ const EventoCard: React.FC<EventoCardProps> = ({ evento, onClick, selectedCatego
             </>
           )}
           <span className="mx-1">•</span>
-          <span>{format(startDate, "d 'de' MMMM", { locale: es })}</span>
+          <span>{formatEventDuration()}</span>
         </div>
       </div>
       
