@@ -257,12 +257,12 @@ const EventoDetail: React.FC<EventoDetailProps> = ({ evento, onClose, toast }) =
                     Abrir en Google Maps
                   </button>
                   <div className="aspect-video rounded-lg overflow-hidden">
-                    <iframe
+                 <iframe
                       width="100%"
                       height="100%"
                       frameBorder="0"
                       style={{ border: 0 }}
-                      src={`https://www.google.com/maps/embed/v1/place?key=YOUR_GOOGLE_MAPS_API_KEY&q=${encodeURIComponent(
+                      src={`https://www.google.com/maps/embed/v1/place?key=${import.meta.env.VITE_GOOGLE_MAPS_API_KEY}&q=${encodeURIComponent(
                         `${evento.direccion}, ${evento.localidad}`
                       )}`}
                       allowFullScreen
