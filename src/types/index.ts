@@ -80,6 +80,7 @@ export interface Evento {
   contactoWeb: string;
   latitud: string;
   longitud: string;
+  distanciaUsuario?: number;
   province: Province;
   categoriaPrincipal: Category;
   categoriaSecundaria?: Category;

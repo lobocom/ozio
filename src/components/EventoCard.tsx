@@ -27,6 +27,16 @@ const EventoCard: React.FC<EventoCardProps> = ({ evento, onClick, selectedCatego
   const categoria = findCategoryById(categoryToShow?.id ?? evento.categoriaPrincipal.id);
   const CategoryIcon = getCategoryIcon(categoria?.icon ?? 'Ticket');
 
+  const formatDistance = (distance?: number): string => {
+    if (!distance) return '';
+    if (distance < 1) {
+      return `estás a ${Math.round(distance * 1000)}m`;
+    }
+    return `estás a ${distance.toFixed(1)}km`;
+  };
+
+
+
   return (
     <motion.div 
       className="bg-white rounded-lg shadow-sm overflow-hidden mb-3 flex"
@@ -59,6 +69,12 @@ const EventoCard: React.FC<EventoCardProps> = ({ evento, onClick, selectedCatego
         <div className="flex items-center text-gray-500 text-xs">
           <MapPin size={12} className="mr-1" />
           <span>{evento.localidad}</span>
+           {evento.distanciaUsuario && (
+            <>
+              <span className="mx-1">•</span>
+              <span>{formatDistance(evento.distanciaUsuario)}</span>
+            </>
+          )}
           <span className="mx-1">•</span>
           <span>{format(startDate, "d 'de' MMMM", { locale: es })}</span>
         </div>
