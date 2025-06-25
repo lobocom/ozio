@@ -1,5 +1,5 @@
 import { Category } from '../types';
-import { Music, Beer, Ticket, Utensils, Palette, Baby, PartyPopper } from 'lucide-react';
+import { Music, Bike, Ticket, Utensils, Palette, Baby, PartyPopper } from 'lucide-react';
 
 export const categories: Category[] = [
   {
@@ -19,7 +19,7 @@ export const categories: Category[] = [
     descripcionEs: '',
     descripcionEn: '',
     activo: true,
-    icon: 'Beer',
+    icon: 'Bike',
     color: '#7eb88a'
   },
   {
@@ -78,8 +78,8 @@ export const getCategoryIcon = (iconName: string) => {
   switch (iconName) {
     case 'Music':
       return Music;
-    case 'Beer':
-      return Beer;
+    case 'Bike':
+      return Bike;
     case 'Ticket':
       return Ticket;
     case 'Utensils':
