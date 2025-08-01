@@ -32,9 +32,9 @@ const EventoCard: React.FC<EventoCardProps> = ({ evento, onClick, selectedCatego
   const formatDistance = (distance?: number): string => {
     if (!distance) return '';
     if (distance < 1) {
-      return `estás a ${Math.round(distance * 1000)}m`;
+      return `${Math.round(distance * 1000)}m`;
     }
-    return `estás a ${distance.toFixed(1)}km`;
+    return `${distance.toFixed(1)}km`;
   };
 
   // Format event duration
@@ -62,25 +62,27 @@ const EventoCard: React.FC<EventoCardProps> = ({ evento, onClick, selectedCatego
     >
 
       <div
-        className="w-16 flex items-center justify-center"
+        className="w-8 flex items-center justify-center"
         style={{ backgroundColor: categoria?.color ?? '#000000' }}
       >
         <CategoryIcon size={24} className="text-white" />
       </div>
 
-      <div className="p-4 flex-1">
-        <div className="flex items-center mb-1">
-          <span className="text-xs font-semibold"
-            style={{ color: categoria?.color ?? '#000000' }}>
-            {evento.categoriaPrincipal.tituloEs}
-          </span>
-          {evento.gratuito && (
-            <span className="ml-2 px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">
-              Gratuito
+      <div className="pt-2 pr-4 pl-4 pb-2 flex-1 flex flex-col justify-between">
+        <div>
+          <div className="flex items-center mb-1">
+            <span className="text-xs font-semibold"
+              style={{ color: categoria?.color ?? '#000000' }}>
+              {evento.categoriaPrincipal.tituloEs}
             </span>
-          )}
+            {evento.gratuito && (
+              <span className="ml-2 px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">
+                Gratuito
+              </span>
+            )}
+          </div>
+          <h3 className="font-semibold text-gray-800 mb-1 text-sm">{evento.tituloEs}</h3>
         </div>
-        <h3 className="font-semibold text-gray-800 mb-1">{evento.tituloEs}</h3>
         <div className="flex items-center text-gray-500 text-xs">
           <MapPin size={12} className="mr-1" />
           <span>{evento.localidad}</span>
@@ -90,8 +92,8 @@ const EventoCard: React.FC<EventoCardProps> = ({ evento, onClick, selectedCatego
               <span>{formatDistance(evento.distanciaUsuario)}</span>
             </>
           )}
-          <span className="mx-1">•</span>
-          <span>{formatEventDuration()}</span>
+          {/* <span className="mx-1">•</span>
+          <span>{formatEventDuration()}</span> */}
         </div>
       </div>
 
