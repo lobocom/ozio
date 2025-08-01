@@ -125,7 +125,7 @@ const EventoList: React.FC<EventoListProps> = ({ eventos, onEventClick, selected
     <motion.div className="px-4 py-2 flex-1 overflow-auto">
       {sortedDates.map(dateKey => (
         <div key={dateKey} className="mb-6">
-          <h2 className="text-lg font-bold text-gray-800 mb-3 sticky top-0 bg-gray-100 py-2 px-2 rounded-md">
+          <h2 className="text-lg font-bold text-gray-800 mb-1 sticky top-0 bg-gray-100 py-1 px-2 rounded-md">
             {getDateHeader(dateKey)}
           </h2>
           <motion.div
