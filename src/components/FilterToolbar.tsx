@@ -25,6 +25,8 @@ const FilterToolbar: React.FC<FilterToolbarProps> = ({
 }) => {
   const { error } = useUser();
   const [showDatePicker, setShowDatePicker] = useState(false);
+  const [showLocationPicker, setShowLocationPicker] = useState(false);
+  const [showDistancePicker, setShowDistancePicker] = useState(false);
 
   const formatDateLabel = (date: Date | null): string => {
     if (!date) return "Desde hoy";
@@ -40,6 +42,16 @@ const FilterToolbar: React.FC<FilterToolbarProps> = ({
     setShowDatePicker(false);
   };
 
+  const handleLocationSelect = (locationId: string) => {
+    onLocationChange(locationId);
+    setShowLocationPicker(false);
+  };
+
+  const handleDistanceSelect = (distance: number) => {
+    onDistanceChange(distance);
+    setShowDistancePicker(false);
+  };
+
   const clearDate = (e: React.MouseEvent) => {
     e.stopPropagation();
     onFromDateChange(null);
@@ -47,61 +59,55 @@ const FilterToolbar: React.FC<FilterToolbarProps> = ({
 
   const today = new Date().toISOString().split("T")[0];
 
+  const selectedLocationName =
+    locations.find((loc) => loc.id === selectedLocation)?.name ||
+    "Seleccionar...";
+
+  const distanceOptions = [5, 10, 25, 50, 100];
+
   return (
     <>
-      <div className="bg-white p-3 shadow-sm flex justify-between items-center">
-        <div className="flex items-center gap-2">
+      <div className="bg-purple-50 p-3 shadow-sm flex justify-between items-center">
+        <div className="flex items-center gap-1.5">
           <MapPin size={16} className="text-gray-500" />
-          <select
-            value={selectedLocation}
-            onChange={(e) => onLocationChange(e.target.value)}
-            className="p-2 text-sm border border-gray-300 rounded-md bg-gray-50 text-gray-700"
+          <motion.button
+            whileTap={{ scale: 0.95 }}
+            onClick={() => setShowLocationPicker(true)}
+            className="text-sm font-semibold text-gray-800 hover:text-indigo-600"
           >
-            {locations.map((location) => (
-              <option key={location.id} value={location.id}>
-                {location.name}{" "}
-                {location.id === "0" && error ? "(No disponible)" : ""}
-              </option>
-            ))}
-          </select>
+            <span>{selectedLocationName}</span>
+          </motion.button>
         </div>
 
-        <div className="flex items-center gap-3">
-          {/* Date Filter */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5">
             <Calendar size={16} className="text-gray-500" />
             <motion.button
               whileTap={{ scale: 0.95 }}
               onClick={() => setShowDatePicker(true)}
-              className="flex items-center gap-1 p-2 text-sm border border-gray-300 rounded-md bg-gray-50 text-gray-700 hover:bg-gray-100"
+              className="flex items-center gap-1 text-sm font-semibold text-gray-800 hover:text-indigo-600"
             >
               <span>{formatDateLabel(fromDate)}</span>
               {fromDate && (
                 <X
                   size={14}
-                  className="text-gray-400 hover:text-gray-600"
+                  className="text-gray-400 hover:text-red-600"
                   onClick={clearDate}
                 />
               )}
             </motion.button>
           </div>
 
-          {/* Distance Filter */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5">
             <Ruler size={16} className="text-gray-500" />
-            <select
-              value={maxDistance}
-              onChange={(e) => onDistanceChange(parseInt(e.target.value, 10))}
-              className="p-2 text-sm border border-gray-300 rounded-md bg-gray-50"
+            <motion.button
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setShowDistancePicker(true)}
+              className="text-sm font-semibold text-gray-800 hover:text-indigo-600"
             >
-              <option value={5}>5 km</option>
-              <option value={10}>10 km</option>
-              <option value={25}>25 km</option>
-              <option value={50}>50 km</option>
-              <option value={100}>100 km</option>
-            </select>
+              <span>{maxDistance} km</span>
+            </motion.button>
           </div>
-        </div>
+
       </div>
 
       <AnimatePresence>
@@ -153,6 +159,102 @@ const FilterToolbar: React.FC<FilterToolbarProps> = ({
               <div className="flex gap-2 mt-6">
                 <button
                   onClick={() => setShowDatePicker(false)}
+                  className="flex-1 py-2 px-4 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+                >
+                  Cancelar
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {showLocationPicker && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+            onClick={() => setShowLocationPicker(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-white rounded-lg p-6 m-4 max-w-sm w-full"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h3 className="text-lg font-semibold mb-4">
+                Seleccionar ubicación
+              </h3>
+              <div className="space-y-2 max-h-64 overflow-y-auto">
+                {locations.map((location) => (
+                  <button
+                    key={location.id}
+                    onClick={() => handleLocationSelect(location.id)}
+                    disabled={location.id === "0" && !!error}
+                    className={`w-full p-3 text-left rounded-lg border ${
+                      selectedLocation === location.id
+                        ? "border-indigo-500 bg-indigo-50 text-indigo-700 font-semibold"
+                        : "border-gray-200 hover:bg-gray-50"
+                    } disabled:opacity-50 disabled:cursor-not-allowed`}
+                  >
+                    {location.name}{" "}
+                    {location.id === "0" && error ? "(No disponible)" : ""}
+                  </button>
+                ))}
+              </div>
+              <div className="flex gap-2 mt-6">
+                <button
+                  onClick={() => setShowLocationPicker(false)}
+                  className="flex-1 py-2 px-4 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+                >
+                  Cancelar
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {showDistancePicker && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+            onClick={() => setShowDistancePicker(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-white rounded-lg p-6 m-4 max-w-sm w-full"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h3 className="text-lg font-semibold mb-4">
+                Seleccionar distancia
+              </h3>
+              <div className="space-y-2 max-h-64 overflow-y-auto">
+                {distanceOptions.map((distance) => (
+                  <button
+                    key={distance}
+                    onClick={() => handleDistanceSelect(distance)}
+                    className={`w-full p-3 text-left rounded-lg border ${
+                      maxDistance === distance
+                        ? "border-indigo-500 bg-indigo-50 text-indigo-700 font-semibold"
+                        : "border-gray-200 hover:bg-gray-50"
+                    }`}
+                  >
+                    {distance} km
+                  </button>
+                ))}
+              </div>
+              <div className="flex gap-2 mt-6">
+                <button
+                  onClick={() => setShowDistancePicker(false)}
                   className="flex-1 py-2 px-4 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
                 >
                   Cancelar
